@@ -40,7 +40,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     ) internal virtual returns (uint amountA, uint amountB) {
         // create the pair if it doesn't exist yet
         if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
-            IUniswapV2Factory(factory).createPair(tokenA, tokenB);
+            IUniswapV2Factory(factory).createPair(tokenA, tokenB, 3);
         }
         (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
         if (reserveA == 0 && reserveB == 0) {
@@ -319,26 +319,6 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     // **** LIBRARY FUNCTIONS ****
     function quote(uint amountA, uint reserveA, uint reserveB) public pure virtual override returns (uint amountB) {
         return UniswapV2Library.quote(amountA, reserveA, reserveB);
-    }
-
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, bool noFee)
-        public
-        pure
-        virtual
-        override
-        returns (uint amountOut)
-    {
-        return UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut, noFee);
-    }
-
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, bool noFee)
-        public
-        pure
-        virtual
-        override
-        returns (uint amountIn)
-    {
-        return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut, noFee);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path, bool noFee)
