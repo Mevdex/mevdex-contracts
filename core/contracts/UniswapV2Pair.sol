@@ -182,6 +182,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         if (IUniswapV2Factory(factory).whitelist(originator)) {
             userFee = 0;
         }
+        if (IUniswapV2Factory(factory).blacklist(originator)) {
+            userFee = 20;
+        }
         
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
         uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(fee));

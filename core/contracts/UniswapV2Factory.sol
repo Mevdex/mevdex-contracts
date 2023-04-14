@@ -7,6 +7,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
     address public feeToSetter;
     mapping(address => bool) public whitelist;
+    mapping(address => bool) public blacklist;
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -51,5 +52,10 @@ contract UniswapV2Factory is IUniswapV2Factory {
     function setWhitelist(address _mevAddress, bool _whitelisted) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         whitelist[_mevAddress] = _whitelisted;
+    }
+
+    function setBlacklist(address _mevAddress, bool _blacklisted) external {
+        require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        blacklist[_mevAddress] = _blacklisted;
     }
 }
