@@ -27,7 +27,10 @@ contract UniswapV2Factory is IUniswapV2Factory {
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        require(fee <= 25, 'UniswapV2: HIGH_FEE');
+        if (fee != 3) {
+            require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+            require(fee <= 10, 'UniswapV2: FEE_HIGH');
+        }
         bytes memory bytecode = type(UniswapV2Pair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
