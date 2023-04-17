@@ -18,7 +18,6 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     address public factory;
     address public token0;
     address public token1;
-    uint256 public fee;
 
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
@@ -64,11 +63,10 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     }
 
     // called once by the factory at time of deployment
-    function initialize(address _token0, address _token1, uint256 _fee) external {
+    function initialize(address _token0, address _token1) external {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
-        fee = _fee;
     }
 
     // update reserves and, on the first call per block, price accumulators
@@ -178,14 +176,24 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
-        uint256 userFee = fee;
-        if (IUniswapV2Factory(factory).whitelist(originator)) {
-            userFee = 0;
+
+        // normal fee = 3, MEV/WETH fee = 10
+        // whitelited fee = 0, blacklisted fee = 25
+        address caller = originator;
+        if (msg.sender != IUniswapV2Factory(factory).router) {
+            caller = msg.sender;
         }
-        if (IUniswapV2Factory(factory).blacklist(originator)) {
-            userFee = 25;
+        uint256 fee = 3;
+        if (IUniswapV2Factory(factory).whitelist(caller)) {
+            fee = 0;
         }
-        
+        if (IUniswapV2Factory(factory).blacklist(caller)) {
+            fee = 25;
+        }
+        if (fee == 3 && IUniswapV2Factory(factory).MEVWETH == address(this)) {
+            fee = 10;
+        }
+
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
         uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(fee));
         uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(fee));

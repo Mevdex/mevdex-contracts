@@ -6,6 +6,8 @@ import './UniswapV2Pair.sol';
 contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
     address public feeToSetter;
+    address public router;
+    address public MEVWETH;
     mapping(address => bool) public whitelist;
     mapping(address => bool) public blacklist;
 
@@ -22,21 +24,17 @@ contract UniswapV2Factory is IUniswapV2Factory {
         return allPairs.length;
     }
 
-    function createPair(address tokenA, address tokenB, uint256 fee) external returns (address pair) {
+    function createPair(address tokenA, address tokenB) external returns (address pair) {
         require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        if (fee != 3) {
-            require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
-            require(fee <= 10, 'UniswapV2: FEE_HIGH');
-        }
         bytes memory bytecode = type(UniswapV2Pair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IUniswapV2Pair(pair).initialize(token0, token1, fee);
+        IUniswapV2Pair(pair).initialize(token0, token1);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
@@ -53,13 +51,23 @@ contract UniswapV2Factory is IUniswapV2Factory {
         feeToSetter = _feeToSetter;
     }
 
-    function setWhitelist(address _mevAddress, bool _whitelisted) external {
+    function setWhitelist(address _address, bool _whitelisted) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
-        whitelist[_mevAddress] = _whitelisted;
+        whitelist[_address] = _whitelisted;
     }
 
-    function setBlacklist(address _mevAddress, bool _blacklisted) external {
+    function setBlacklist(address _address, bool _blacklisted) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
-        blacklist[_mevAddress] = _blacklisted;
+        blacklist[_address] = _blacklisted;
+    }
+
+    function setRouter(address _routerAddress) external {
+        require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        router = _routerAddress;
+    }
+
+    function setMEVWETH(address _MEVWETHPoolAddress) external {
+        require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        MEVWETH = _MEVWETHPoolAddress;
     }
 }
