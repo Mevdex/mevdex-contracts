@@ -179,21 +179,27 @@ contract MevdexPair is IMevdexPair, MevdexERC20 {
 
         // normal fee = 3, MEV/WETH fee = 10
         // whitelisted fee = 0, blacklisted fee = 25
+        uint fee;
+        { // scope for fee, avoids stack too deep errors
         address caller = originator;
-        if (msg.sender != IMevdexFactory(factory).router) {
+        address router = IMevdexFactory(factory).router();
+        bool whitelisted = IMevdexFactory(factory).whitelist(caller);
+        bool blacklisted = IMevdexFactory(factory).blacklist(caller);
+        address MEVWETH = IMevdexFactory(factory).MEVWETH();
+        if (msg.sender != router) {
             caller = msg.sender;
         }
-        uint256 fee = 3;
-        if (IMevdexFactory(factory).whitelist(caller)) {
+        if (whitelisted) {
             fee = 0;
         }
-        if (IMevdexFactory(factory).blacklist(caller)) {
+        if (blacklisted) {
             fee = 25;
         }
-        if (fee == 3 && IMevdexFactory(factory).MEVWETH == address(this)) {
+        if (fee == 3 && MEVWETH == address(this)) {
             fee = 10;
         }
-
+        }
+        
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
         uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(fee));
         uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(fee));
@@ -201,7 +207,14 @@ contract MevdexPair is IMevdexPair, MevdexERC20 {
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);
-        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+        { // stack too deep
+        uint a0in = amount0In;
+        uint a1in = amount1In;
+        uint a0out = amount0Out;
+        uint a1out = amount1Out;
+        emit Swap(msg.sender, a0in, a1in, a0out, a1out, to);
+        }
+        
     }
 
     // force balances to match reserves
