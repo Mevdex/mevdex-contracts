@@ -189,7 +189,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         address to,
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = MevdexLibrary.getAmountsOut(factory, amountIn, path);
+        amounts = MevdexLibrary.getAmountsOut(factory, amountIn, path, msg.sender);
         require(amounts[amounts.length - 1] >= amountOutMin, 'MevdexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]
@@ -203,7 +203,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         address to,
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path);
+        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path, msg.sender);
         require(amounts[0] <= amountInMax, 'MevdexRouter: EXCESSIVE_INPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]
@@ -219,7 +219,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         returns (uint[] memory amounts)
     {
         require(path[0] == WETH, 'MevdexRouter: INVALID_PATH');
-        amounts = MevdexLibrary.getAmountsOut(factory, msg.value, path);
+        amounts = MevdexLibrary.getAmountsOut(factory, msg.value, path, msg.sender);
         require(amounts[amounts.length - 1] >= amountOutMin, 'MevdexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
@@ -233,7 +233,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         returns (uint[] memory amounts)
     {
         require(path[path.length - 1] == WETH, 'MevdexRouter: INVALID_PATH');
-        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path);
+        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path, msg.sender);
         require(amounts[0] <= amountInMax, 'MevdexRouter: EXCESSIVE_INPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]
@@ -250,7 +250,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         returns (uint[] memory amounts)
     {
         require(path[path.length - 1] == WETH, 'MevdexRouter: INVALID_PATH');
-        amounts = MevdexLibrary.getAmountsOut(factory, amountIn, path);
+        amounts = MevdexLibrary.getAmountsOut(factory, amountIn, path, msg.sender);
         require(amounts[amounts.length - 1] >= amountOutMin, 'MevdexRouter: INSUFFICIENT_OUTPUT_AMOUNT');
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]
@@ -268,7 +268,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         returns (uint[] memory amounts)
     {
         require(path[0] == WETH, 'MevdexRouter: INVALID_PATH');
-        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path);
+        amounts = MevdexLibrary.getAmountsIn(factory, amountOut, path, msg.sender);
         require(amounts[0] <= msg.value, 'MevdexRouter: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(MevdexLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
@@ -309,7 +309,7 @@ contract MevdexRouter02 is IMevdexRouter02 {
         override
         returns (uint[] memory amounts)
     {
-        return MevdexLibrary.getAmountsOut(factory, amountIn, path);
+        return MevdexLibrary.getAmountsOut(factory, amountIn, path, msg.sender);
     }
 
     function getAmountsIn(uint amountOut, address[] memory path)
@@ -319,6 +319,6 @@ contract MevdexRouter02 is IMevdexRouter02 {
         override
         returns (uint[] memory amounts)
     {
-        return MevdexLibrary.getAmountsIn(factory, amountOut, path);
+        return MevdexLibrary.getAmountsIn(factory, amountOut, path, msg.sender);
     }
 }

@@ -26,7 +26,7 @@ library MevdexLibrary {
     }
 
     // get the fee that a specific user pays for a pool
-    function getUserFee(address factory, address tokenA, address tokenB) internal view returns (uint256 fee) {
+    function getUserFee(address factory, address tokenA, address tokenB, address originator) internal view returns (uint256 fee) {
         fee = 3;
         if (IMevdexFactory(factory).whitelist(originator)) {
             fee = 0;
@@ -34,7 +34,7 @@ library MevdexLibrary {
         if (IMevdexFactory(factory).blacklist(originator)) {
             fee = 25;
         }
-        if (fee == 3 && IMevdexFactory(factory).MEVWETH == pairFor(factory, tokenA, tokenB)) {
+        if (fee == 3 && IMevdexFactory(factory).MEVWETH() == pairFor(factory, tokenA, tokenB)) {
             fee = 10;
         }
     }
@@ -73,24 +73,24 @@ library MevdexLibrary {
     }
 
     // performs chained getAmountOut calculations on any number of pairs
-    function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
+    function getAmountsOut(address factory, uint amountIn, address[] memory path, address originator) internal view returns (uint[] memory amounts) {
         require(path.length >= 2, 'MevdexLibrary: INVALID_PATH');
         amounts = new uint[](path.length);
         amounts[0] = amountIn;
         for (uint i; i < path.length - 1; i++) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, getUserFee(factory, path[i], path[i + 1]));
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, getUserFee(factory, path[i], path[i + 1], originator));
         }
     }
 
     // performs chained getAmountIn calculations on any number of pairs
-    function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
+    function getAmountsIn(address factory, uint amountOut, address[] memory path, address originator) internal view returns (uint[] memory amounts) {
         require(path.length >= 2, 'MevdexLibrary: INVALID_PATH');
         amounts = new uint[](path.length);
         amounts[amounts.length - 1] = amountOut;
         for (uint i = path.length - 1; i > 0; i--) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
-            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, getUserFee(factory, path[i - 1], path[i]));
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, getUserFee(factory, path[i - 1], path[i], originator));
         }
     }
 }

@@ -5,6 +5,10 @@ interface IMevdexFactory {
 
     function feeTo() external view returns (address);
     function feeToSetter() external view returns (address);
+    function router() external view returns (address);
+    function MEVWETH() external view returns (address);
+    function whitelist(address _user) external view returns (bool whitelisted);
+    function blacklist(address _user) external view returns (bool blacklisted);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
     function allPairs(uint) external view returns (address pair);
