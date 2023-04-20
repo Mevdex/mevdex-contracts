@@ -67,7 +67,7 @@ contract MevdexChef is Ownable, ReentrancyGuard {
     address public feeAddress;
 
     // Percentage of pool rewards that goto the marketing.
-    uint256 public marketingPercent = 45; // 4.5%
+    uint256 public marketingPercent = 40; // 4.5%
 
     // Percentage of pool rewards that goto the marketing.
     uint256 public teamPercent = 90; // 9%
@@ -151,7 +151,7 @@ contract MevdexChef is Ownable, ReentrancyGuard {
         address indexed newAddress
     );
 
-    event SetmarketingPercent(uint256 oldPercent, uint256 newPercent);
+    event SetMarketingPercent(uint256 oldPercent, uint256 newPercent);
 
     event SetTeamPercent(uint256 oldPercent, uint256 newPercent);
 
@@ -798,7 +798,7 @@ contract MevdexChef is Ownable, ReentrancyGuard {
         uint256 _newmarketingPercent
     ) public onlyOwner {
         require(_newmarketingPercent <= 2000, "invalid percent value");
-        emit SetmarketingPercent(marketingPercent, _newmarketingPercent);
+        emit SetMarketingPercent(marketingPercent, _newmarketingPercent);
         marketingPercent = _newmarketingPercent;
     }
 
