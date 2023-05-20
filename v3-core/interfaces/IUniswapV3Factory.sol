@@ -39,6 +39,8 @@ interface IUniswapV3Factory {
     /// @return The tick spacing
     function feeAmountTickSpacing(uint24 fee) external view returns (int24);
 
+    function engines(address) external view returns (bool);
+
     /// @notice Returns the pool address for a given pair of tokens and a fee, or address 0 if it does not exist
     /// @dev tokenA and tokenB may be passed in either token0/token1 or token1/token0 order
     /// @param tokenA The contract address of either token0 or token1

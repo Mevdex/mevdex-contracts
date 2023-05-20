@@ -80,6 +80,15 @@ interface IUniswapV3PoolActions {
         bytes calldata data
     ) external returns (int256 amount0, int256 amount1);
 
+    function rebalance(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        uint256 fee,
+        bytes calldata data
+    ) external returns (int256 amount0, int256 amount1);
+
     /// @notice Receive token0 and/or token1 and pay it back, plus a fee, in the callback
     /// @dev The caller of this method receives a callback in the form of IUniswapV3FlashCallback#uniswapV3FlashCallback
     /// @dev Can be used to donate underlying tokens pro-rata to currently in-range liquidity providers by calling
