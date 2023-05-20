@@ -54,27 +54,28 @@ contract MevdexChef is Ownable, ReentrancyGuard {
     // The timestamp when Mev mining starts.
     uint256 public startTimestamp;
 
-    // Total locked up rewards
+    // Total locked up rewards.
     uint256 public totalLockedUpRewards;
 
-    // Total Mev in Mev Pools (can be multiple pools)
+    // Total Mev in Mev Pools (can be multiple pools).
     uint256 public totalMevInPools;
 
-    // marketing address.
-    address public marketingAddress;
-
-    // deposit fee address if needed
+    // deposit fee address if needed.
     address public feeAddress;
 
-    // Percentage of pool rewards that goto the marketing.
+    // Percentage of pool rewards that go to the marketing.
     uint256 public marketingPercent = 40; // 4.5%
 
-    // Percentage of pool rewards that goto the marketing.
+    // Marketing address.
+    address public marketingAddress;
+
+    // Percentage of pool rewards that go to the team.
     uint256 public teamPercent = 90; // 9%
 
+    // Team address.
     address public teamAddress;
 
-    // The precision factor
+    // The precision factor.
     uint256 private constant ACC_TOKEN_PRECISION = 1e12;
 
     modifier validatePoolByPid(uint256 _pid) {
